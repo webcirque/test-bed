@@ -1,4 +1,63 @@
 # WEBSF.main
+## Schedule API
+### NRange
+`NRange` is an interface for expressing a certain numeral range.
+
+#### `NSignal {}`
+##### `i`
+Cumulative ID of a certain signal.
+
+##### `p`
+The exact point of a certain signal.
+
+##### `l`
+The label of a certain signal.
+
+##### `c`
+The belonging class of a certain signal.
+
+#### `NRange {}`
+##### `i`
+Cumulative ID of a certain range.
+##### `f`
+The start point of a certain range.
+
+##### `t`
+The end point of a certain range.
+
+##### `l`
+The label of a certain range.
+
+##### `c`
+The belonging class of a certain range.
+
+##### `@get d`
+The duration of a certain range.
+
+##### `@set d`
+
+#### `Ranges {}`
+##### `@private list[]`
+Sorted list of ranges. Start points are the actual factor for sorting.
+
+##### `@private classes[]`
+
+##### `@get length`
+
+##### `@get duration`
+
+##### `get(start, duration)`
+
+##### `getAll()`
+
+##### `getIn(start, end)`
+
+##### `getClasses()`
+
+##### `getClass(class)`
+
+##### `forEach(callbackFn)`
+
 ## Time API
 ### RTime
 `RTime` is an interface for dealing with time values relative to some point. Maximum accuracy is in nanoseconds.
@@ -100,13 +159,13 @@ Stop to keep time, and reset to original state.
 
 Returns the total time of the specific instance if it has been successfully reset. Throws an error if failed.
 
-##### `sum()`
+##### `@get sum`
 Returns the relative time of execution of the function.
 
-##### `count()`
+##### `@get count`
 Returns the total execution count of `point()` function.
 
-##### `mean()`
+##### `@get mean`
 Returns the average time between every execution of `point()` function.
 
 ##### `flag()`
@@ -115,22 +174,31 @@ Record the time of execution of this function into ```Stopwatch.flags```.
 ##### `flags`
 A list of recorded time. ```Constructed with StopwatchFlag object.```
 
-#### `StopwatchFlag`
-##### `id`
-A cumulative ID for representing the order of records.
+### OPSStat
+`OPStat` is an interface for measuring operation execution frequencies, for example measuring FPS.
 
-##### `at`
-The time flag was recorded.
+#### (dependencies)
+* `websf.main@webcirque`
 
-##### `class`
-The belonging class of a certain flag.
+#### `OPSStat {}`
+##### `pause()`
+Pauses OPSStat. When paused, OPSStat will refuse any operation recording.
 
-##### `label`
-Label of a certain flag.
+##### `point()`
+Starts/resumes OPSStat.
 
-#### `StopwatchFlags`
-##### `classes`
-Mapped indeces of classes.
+##### `add(class)`
+Record an operation into a specific class.
+
+##### `@get duration`
+Total running duration of OPSStat.
 
 ##### `getClass(class)`
-Short hand of `StopwatchFlags.classes.get(class)`.
+
+##### `getClasses()`
+
+##### `getMean(?class)`
+
+##### `reset()`
+
+##### `maxItems`
