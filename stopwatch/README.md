@@ -1,7 +1,7 @@
 # WEBSF.main
 ## Time API
 ### RTime
-`RTime` is an interface for dealing with time values relative to some point. Maximum accuracy in nanoseconds.
+`RTime` is an interface for dealing with time values relative to some point. Maximum accuracy is in nanoseconds.
 
 #### `RTime {}`
 ##### `@static fromSeconds(sec)`
@@ -63,7 +63,7 @@ Serialize time into a human-friendly format. Default format: `01:02`(MM:SS).
     * *h* (before "ms"): Make the output text to include hours. (HH:MM:SS)
     * *d* (before "ms"): Make the output text to include days and hours. (DD:HH:MM:SS)
 
-For example, with "hmsd" you will get an output of `HH:MM:SS.XX` (`01:14:51.40`), or with "hmss" you will get an output of `MM:SS-FF/FFF` (`19:19:81-00/100`, if the instance has a `steps` property and is set to `100`).
+For example, with "hmsd" you will get an output of `HH:MM:SS.XX` (`01:14:51.40`), or with "mss" you will get an output of `MM:SS-FF/FFF` (`19:19:81-00/100`, if the instance has a `steps` property and is set to `100`).
 
 ### HARTime
 `HARTime` is an interface for getting time values with high accuracy. The basic accuracy is in milliseconds (ms), and if the platform supports, the accuracy can go further into microseconds (us) or nanoseconds (ns). Inherited from `RTime`.
