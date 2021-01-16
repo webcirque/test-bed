@@ -24,6 +24,9 @@ var generateRandom = function (length) {
 	return tmp;
 };
 
+// Timed stop watch
+
+
 var WCSMS = {}, WCSME = {}; // Webcirque Custom Script Maintained Styles
 // Content of the maintained CSS
 /*
