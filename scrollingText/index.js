@@ -33,10 +33,10 @@ var WCSMS = {}, WCSME = {}; // Webcirque Custom Script Maintained Styles
 WCSMS.scroller = {
 	prop: "wcsms-textDial-${id} ${duration}s linear infinite",
 	frames: "@keyframes wcsms-textDial-${id} {\n	0% {\n		left: 0px;\n	}${stopby}\n	100% {\n		left: -${end}px;\n	}\n}",
-	stopbyFrame: "\n	${stopAt}% {\n 		left: -${end}px;\n	}",
+	stopbyFrame: "\n	${stopAt}% {\n 		left: 0px;\n	}",
 	speedUnit: 48,
 	speedFactor: 1,
-	restTime: 2,
+	restTime: 5,
 	gapWidth: 16,
 	fps: 60
 };
@@ -75,7 +75,7 @@ WCSME.TextDialElement = function (element, conf = {}) {
 		calculated.originalDuration = (this.scrollWidth / (this.speedUnit || WCSMS.scroller.speedUnit)) / (this.speedFactor || WCSMS.scroller.speedFactor);
 		calculated.duration = Math.round((calculated.originalDuration + (this.restTime || WCSMS.scroller.restTime)) * 10) / 10;
 		calculated.stopby = "";
-		calculated.stopAt = Math.round(calculated.originalDuration / calculated.duration * 1000) / 10;
+		calculated.stopAt = Math.round((1 - (calculated.originalDuration / calculated.duration)) * 1000) / 10;
 		calculated.end = this.scrollWidth;
 		if ((this.restTime || WCSMS.scroller.restTime) >= 0.05) {
 			calculated.stopby = WCSMS.scroller.stopbyFrame.alter(calculated);

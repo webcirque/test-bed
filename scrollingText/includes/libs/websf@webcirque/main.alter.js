@@ -166,10 +166,9 @@ Array.prototype.point = function (element) {
 	};
 	var lastblock = block;
 	while (resume) {
-		block /= 2;
+		block = block >> 1;
 		if (block < 1) {
 			resume = false;
-			console.log("Block size too small.");
 		} else {
 			if (this[pointer] > element) {
 				if (this[pointer - 1] >= element) {
@@ -183,7 +182,6 @@ Array.prototype.point = function (element) {
 			resume = false;
 		};
 		lastblock = block;
-		console.log("Block size " + block + ", pointer at " + pointer + ".");
 		// Finally exits the loop
 	};
 	console.log("Over. Points at " + pointer);
