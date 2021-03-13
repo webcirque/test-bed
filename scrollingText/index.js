@@ -41,7 +41,8 @@ WCSMS.scroller = {
 	speedFactor: 1,
 	restTime: 5,
 	gapWidth: 16,
-	fps: 60
+	fps: 60,
+	lazyUpdate: false
 };
 //Custom Element
 WCSME.TextDialElement = function (element, conf = {}) {
@@ -49,55 +50,117 @@ WCSME.TextDialElement = function (element, conf = {}) {
 		// Initiate
 		var target = element;
 		var intermediate = target.innerText;
+		var upThis = this;
 		// Customized settings per element
-		this.speedUnit = conf.speedUnit;
-		this.speedFactor = conf.speedFactor;
-		this.restTime = conf.restTime;
-		this.gapWidth = conf.gapWidth;
+		var tConf = {};
+		tConf.speedUnit = conf.speedUnit;
+		tConf.speedFactor = conf.speedFactor;
+		tConf.restTime = conf.restTime;
+		tConf.gapWidth = conf.gapWidth;
 		// Clear original context
 		target.innerText = "";
 		// Create dummies
 		var dummy = document.createElement("span");
 		var dummy1 = document.createElement("span");
+		var dummy2 = false, managedStyle = false, calculated = false, lastScroll = 0;
 		dummy1.innerText = intermediate;
 		dummy.appendChild(dummy1);
 		target.appendChild(dummy);
-		if (dummy1.offsetWidth > target.offsetWidth) {
-			var dummy2 = document.createElement("span");
-			dummy2.innerText = intermediate;
-			dummy2.style.marginLeft = (this.gapWidth || WCSMS.scroller.gapWidth).toString() + "px";
-			dummy.appendChild(dummy2);
-			this.scrollWidth = dummy2.offsetLeft;
-		};
 		// Scroll application (for CSS)
 		this.id = generateRandom(20);
 		this.hookedElement = element;
-		this.text = intermediate;
-		var calculated = {};
-		calculated.id = this.id;
-		calculated.originalDuration = (this.scrollWidth / (this.speedUnit || WCSMS.scroller.speedUnit)) / (this.speedFactor || WCSMS.scroller.speedFactor);
-		calculated.duration = Math.round((calculated.originalDuration + (this.restTime || WCSMS.scroller.restTime)) * 10) / 10;
-		calculated.stopby = "";
-		calculated.stopAt = Math.round((1 - (calculated.originalDuration / calculated.duration)) * 1000) / 10;
-		calculated.end = this.scrollWidth;
-		if ((this.restTime || WCSMS.scroller.restTime) >= 0.05) {
-			calculated.stopby = WCSMS.scroller.stopbyFrame.alter(calculated);
+		// Update gap width
+		this.update = function () {
+			// Dummy manipulation
+			if (dummy2) {
+				if (dummy1.offsetWidth <= target.offsetWidth) {
+					dummy2.remove();
+					dummy2 = false;
+				} else {
+					this.scrollWidth = dummy2.offsetLeft;
+				};
+			} else {
+				if (dummy1.offsetWidth > target.offsetWidth) {
+					dummy2 = document.createElement("span");
+					dummy2.innerText = intermediate;
+					dummy2.style.marginLeft = (this.gapWidth || WCSMS.scroller.gapWidth).toString() + "px";
+					dummy.appendChild(dummy2);
+					this.scrollWidth = dummy2.offsetLeft;
+				};
+			};
+			// Calculate CSS animation
+			if (dummy2) {
+				calculated = {};
+				calculated.id = calculated.id ? calculated.id : this.id;
+				calculated.originalDuration = (this.scrollWidth / (tConf.speedUnit || WCSMS.scroller.speedUnit)) / (tConf.speedFactor || WCSMS.scroller.speedFactor);
+				calculated.duration = Math.round((calculated.originalDuration + (tConf.restTime || WCSMS.scroller.restTime)) * 10) / 10;
+				calculated.stopby = "";
+				calculated.stopAt = Math.round((1 - (calculated.originalDuration / calculated.duration)) * 1000) / 10;
+				calculated.end = this.scrollWidth;
+				if ((tConf.restTime || WCSMS.scroller.restTime) >= 0.05) {
+					calculated.stopby = WCSMS.scroller.stopbyFrame.alter(calculated);
+				};
+				this.animator = WCSMS.scroller.prop.alter(calculated);
+				this.animation = WCSMS.scroller.frames.alter(calculated);
+			};
+			if (dummy1.offsetWidth > target.offsetWidth) {
+				dummy.style.animation = this.animator;
+				if (!managedStyle) {
+					managedStyle = document.createElement("style");
+					document.head.appendChild(managedStyle);
+					WCSME.TextDialElement.managed.set(this.id, this);
+				};
+				managedStyle.id = "wcsms-scroller-${id}".alter(calculated);
+				managedStyle.innerHTML = this.animation;
+			} else {
+				if (managedStyle) {
+					managedStyle.innerHTML = "";
+				};
+			};
 		};
-		this.animator = WCSMS.scroller.prop.alter(calculated);
-		this.animation = WCSMS.scroller.frames.alter(calculated);
-		if (dummy1.offsetWidth > target.offsetWidth) {
-			dummy.style.animation = this.animator;
-			var managedStyle = document.createElement("style");
-			managedStyle.id = "wcsms-scroller-${id}".alter(calculated);
-			managedStyle.innerHTML = this.animation;
-			document.head.appendChild(managedStyle);
-			WCSME.TextDialElement.managed.set(this.id, this);
-		};
+		// Define getter and setter
+		Object.defineProperty(this, "text", {
+			"get": function () {
+				return intermediate;
+			},
+			"set": function (destText) {
+				intermediate = destText;
+				dummy1.innerText = destText;
+				this.update();
+				if (dummy2) {
+					dummy2.innerText = destText;
+				};
+				return intermediate;
+			}
+		});
+		["speedFactor", "speedUnit", "restTime", "gapWidth"].forEach(function (e) {
+			Object.defineProperty(upThis, e, {
+				"get": function () {
+					return tConf[e];
+				},
+				"set": function (dest) {
+					if (dest.constructor == Number) {
+						tConf[e] = dest;
+						if (!WCSMS.scroller.lazyUpdate) {
+							this.update();
+						};
+					} else {
+						throw(new TypeError("expected a Number"));
+					};
+				}
+			});
+		});
+		// Update looks
+		this.update();
 	})(element);
 	return element.textDial;
 };
 WCSME.TextDialElement.managed = new Map();
-WCSME.TextDialElement.update = function () {};
+WCSME.TextDialElement.update = function () {
+	this.managed.forEach((e) => {
+		e.update();
+	});
+};
 
 document.addEventListener("readystatechange", function () {
 	if (this.readyState == "interactive") {
