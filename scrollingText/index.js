@@ -62,7 +62,7 @@ WCSME.TextDialElement = function (element, conf = {}) {
 		// Create dummies
 		var dummy = document.createElement("span");
 		var dummy1 = document.createElement("span");
-		var dummy2 = false, managedStyle = false, calculated = false, lastScroll = 0;
+		var dummy2 = false, managedStyle = false, calculated = false, lastScroll = 0, lastConf = false;
 		dummy1.innerText = intermediate;
 		dummy.appendChild(dummy1);
 		target.appendChild(dummy);
@@ -89,19 +89,24 @@ WCSME.TextDialElement = function (element, conf = {}) {
 				};
 			};
 			// Calculate CSS animation
+			// Do not recalculate when the content width did not change
 			if (dummy2) {
-				calculated = {};
-				calculated.id = calculated.id ? calculated.id : this.id;
-				calculated.originalDuration = (this.scrollWidth / (tConf.speedUnit || WCSMS.scroller.speedUnit)) / (tConf.speedFactor || WCSMS.scroller.speedFactor);
-				calculated.duration = Math.round((calculated.originalDuration + (tConf.restTime || WCSMS.scroller.restTime)) * 10) / 10;
-				calculated.stopby = "";
-				calculated.stopAt = Math.round((1 - (calculated.originalDuration / calculated.duration)) * 1000) / 10;
-				calculated.end = this.scrollWidth;
-				if ((tConf.restTime || WCSMS.scroller.restTime) >= 0.05) {
-					calculated.stopby = WCSMS.scroller.stopbyFrame.alter(calculated);
+				if (this.scrollWidth != lastScroll || tConf.toMap().quickRel(lastConf.toMap()) != 2) {
+					calculated = {};
+					calculated.id = calculated.id ? calculated.id : this.id;
+					calculated.originalDuration = (this.scrollWidth / (tConf.speedUnit || WCSMS.scroller.speedUnit)) / (tConf.speedFactor || WCSMS.scroller.speedFactor);
+					calculated.duration = Math.round((calculated.originalDuration + (tConf.restTime || WCSMS.scroller.restTime)) * 10) / 10;
+					calculated.stopby = "";
+					calculated.stopAt = Math.round((1 - (calculated.originalDuration / calculated.duration)) * 1000) / 10;
+					calculated.end = this.scrollWidth;
+					lastScroll = this.scrollWidth;
+					lastConf = Object.assign({}, tConf);
+					if ((tConf.restTime || WCSMS.scroller.restTime) >= 0.05) {
+						calculated.stopby = WCSMS.scroller.stopbyFrame.alter(calculated);
+					};
+					this.animator = WCSMS.scroller.prop.alter(calculated);
+					this.animation = WCSMS.scroller.frames.alter(calculated);
 				};
-				this.animator = WCSMS.scroller.prop.alter(calculated);
-				this.animation = WCSMS.scroller.frames.alter(calculated);
 			};
 			if (dummy1.offsetWidth > target.offsetWidth) {
 				dummy.style.animation = this.animator;
