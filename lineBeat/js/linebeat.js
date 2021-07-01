@@ -3,16 +3,29 @@ if (!self.CanvasVisualizer) {
 	self.CanvasVisualizer = function () {};
 };
 
-var thread, lineBeatOpt, changeDir;
+var thread, lineBeatOpt, changeDir, trcContent, lyricObj, lastId, trigDelay = 0;
+var audio;
 
 lineBeatOpt = {
 	speed: 5,
 	direction: 1
 };
 
+$invoke(0, async function () {
+	audio = $("audio");
+	fetch("./audio.ogg").then(function (f) {return f.blob()}).then(function (blob) {
+		audio.src = blob.getURL();
+	});
+	fetch("./audio.trc").then(function (f) {return f.blob()}).then(function (blob) {
+		blob.get("text").then(function (f) {
+			trcContent = getEvents(f);
+		});
+	});
+});
+
 $invoke(0, function () {
 	let color = 60;
-	let canvas = $("canvas"), audio = $("audio");
+	let canvas = $("canvas"), eventId = $("div");
 	let ctx = canvas.getContext("2d", {alpha: false, desynchronized: true});
 	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	ctx.fillStyle = "hsl(60 100% 50%)"
@@ -44,6 +57,16 @@ $invoke(0, function () {
 		};
 	};
 	thread = setInterval(function () {
+		if (self.trcContent) {
+			lyricObj = trcContent.getCurrent(audio.currentTime + trigDelay);
+			if (lyricObj) {
+				eventId.innerText = JSON.stringify(lyricObj);
+				if (lyricObj.id != lastId) {
+					changeDir();
+				};
+				lastId = lyricObj.id;
+			};
+		};
 		drawIt(ctx, {media: audio});
 	}, 20);
 	changeDir = function () {
