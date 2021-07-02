@@ -68,7 +68,6 @@ var getEvents = function (text) {
 			switch (mode) {
 				case 0: {
 					if (pointer >= size || pointer < 0) {
-						console.error("Pointer out of bound.");
 						mode = 2;
 					} else if (this[Math.min(size - 1, pointer + blockSize)].end >= time) {
 						pointerStart = pointer;
