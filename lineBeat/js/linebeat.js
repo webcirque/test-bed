@@ -60,11 +60,13 @@ $invoke(0, function () {
 		if (self.trcContent) {
 			lyricObj = trcContent.getCurrent(audio.currentTime + trigDelay);
 			if (lyricObj) {
-				eventId.innerText = JSON.stringify(lyricObj);
+				eventId.innerText = `${Math.round(lyricObj.start * 1000) / 1000}`;
 				if (lyricObj.id != lastId) {
 					changeDir();
 				};
 				lastId = lyricObj.id;
+			} else {
+				eventId.innerText = "Idle";
 			};
 		};
 		drawIt(ctx, {media: audio});
