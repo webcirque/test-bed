@@ -79,7 +79,7 @@ var getEvents = function (text) {
 					break;
 				};
 				case 1: {
-					if (pointer >= (pointerStart + blockSize)) {
+					if (pointer > Math.min((pointerStart + blockSize), size - 1)) {
 						mode = 2;
 					} else if (this[pointer].start <= time && this[pointer].end > time) {
 						result = this[pointer];

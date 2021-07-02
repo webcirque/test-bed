@@ -7,7 +7,7 @@ var thread, lineBeatOpt, changeDir, trcContent, lyricObj, lastId, trigDelay = 0;
 var audio;
 
 lineBeatOpt = {
-	speed: 5,
+	speed: 6,
 	direction: 1
 };
 
@@ -26,12 +26,12 @@ $invoke(0, async function () {
 $invoke(0, function () {
 	let color = 60;
 	let canvas = $("canvas"), eventId = $("div");
-	let ctx = canvas.getContext("2d", {alpha: false, desynchronized: true});
+	let ctx = canvas.getContext("2d", {alpha: !self.mozInnerScreenY, desynchronized: true});
 	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	ctx.fillStyle = "hsl(60 100% 50%)"
 	let drawIt = function (ctx, info) {
 		if (!info.media.paused) {
-			let halfW = ctx.canvas.width / 2, halfH = ctx.canvas.height / 2;
+			let halfW = ctx.canvas.width * 0.8, halfH = ctx.canvas.height * 0.2;
 			// Move canvas
 			let oldImgDt = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
